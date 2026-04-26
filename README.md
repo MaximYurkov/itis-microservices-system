@@ -1,11 +1,20 @@
-# AI Agent Microservices (student version)
+# itis-microservices-system
 
-Минимальный учебный проект под задание по архитектуре:
-- 3 микросервиса: `task-service`, `agent-service`, `notification-service`
-- EDA через Kafka
-- Postgres + MongoDB + Redis
-- API Gateway / routing / load balancer / rate limiter через Nginx
-- Backend only, без UI
+Микросервисная система асинхронной модерации пользовательских объявлений.
+
+Сервисы:
+- task-service — приём и хранение объявлений
+- agent-service — модерация объявлений
+- notification-service — уведомления о результате модерации
+
+Стек:
+- FastAPI
+- Kafka
+- PostgreSQL
+- Redis
+- MongoDB
+- Nginx
+- Docker Compose
 
 ## Быстрый старт
 
