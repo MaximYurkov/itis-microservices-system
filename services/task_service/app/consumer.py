@@ -28,8 +28,8 @@ async def consume_task_completed_events() -> None:
                     task = db.scalar(select(Task).where(Task.id == task_id))
                     if task is None:
                         continue
-                    task.status = payload.get("status", "completed")
-                    task.result = payload.get("result")
+                    task.status = payload.get("status", "approved")
+                    task.moderation_result = payload.get("moderation_result")
                     db.add(task)
                     db.commit()
         except asyncio.CancelledError:
