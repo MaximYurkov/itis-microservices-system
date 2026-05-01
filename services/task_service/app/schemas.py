@@ -3,14 +3,14 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class TaskCreate(BaseModel):
-    prompt: str = Field(min_length=3, max_length=2000)
+    content: str = Field(min_length=3, max_length=2000)
 
 
 class TaskRead(BaseModel):
     id: str
-    prompt: str
+    content: str
     status: str
-    result: str | None = None
+    moderation_result: str | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
 

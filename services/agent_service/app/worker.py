@@ -6,23 +6,28 @@ from shared.events import decode_event, encode_event
 from app.config import settings
 
 
-def build_agent_result(prompt: str) -> str:
-    punctuation = ".,!?;:()[]{}\"'"
-    words = [word.strip(punctuation).lower() for word in prompt.split()]
-    keywords = []
-    for word in words:
-        if len(word) >= 4 and word not in keywords:
-            keywords.append(word)
-        if len(keywords) == 5:
-            break
+BANNED_WORDS = [
+    "скам",
+    "мошенник",
+    "наркотики",
+    "оружие",
+]
 
-    keywords_text = ", ".join(keywords) if keywords else "нет ключевых слов"
-    return (
-        f"Статус: обработано агентом\n"
-        f"Краткий вывод: {prompt[:120]}\n"
-        f"Ключевые слова: {keywords_text}\n"
-        f"Рекомендация: можно передать результат в следующий сервис или показать пользователю."
-    )
+
+def moderate_content(content: str) -> tuple[str, str]:
+    text = content.lower()
+
+    for word in BANNED_WORDS:
+        if word in text:
+            return "rejected", f"Объявление отклонено: найдено запрещённое слово '{word}'."
+
+    if len(content.strip()) < 10:
+        return "rejected", "Объявление отклонено: слишком короткий текст."
+
+    if text.count("http") > 1 or text.count("www") > 1:
+        return "rejected", "Объявление отклонено: обнаружен спам или избыток ссылок."
+
+    return "approved", "Объявление успешно прошло модерацию."
 
 
 async def consume_created_tasks(app) -> None:
@@ -39,34 +44,38 @@ async def consume_created_tasks(app) -> None:
             async for message in consumer:
                 payload = decode_event(message.value)
                 task_id = payload.get("task_id")
-                prompt = payload.get("prompt", "")
-                if not task_id or not prompt:
+                content = payload.get("content", "")
+                if not task_id or not content:
                     continue
 
                 redis: Redis = app.state.redis
-                cache_key = "prompt:" + hashlib.sha256(prompt.encode("utf-8")).hexdigest()
+                cache_key = "content:" + hashlib.sha256(content.encode("utf-8")).hexdigest()
                 status_key = f"task:{task_id}:status"
 
                 cached_result = await redis.get(cache_key)
                 if cached_result:
-                    result = cached_result.decode("utf-8")
+                    moderation_result = cached_result.decode("utf-8")
+                    status = "approved" if "успешно прошло модерацию" in moderation_result.lower() else "rejected"
                     source = "cache"
                 else:
                     await redis.set(status_key, "processing", ex=3600)
                     await asyncio.sleep(1)
-                    result = build_agent_result(prompt)
-                    await redis.set(cache_key, result, ex=3600)
+                    status, moderation_result = moderate_content(content)
+                    await redis.set(cache_key, moderation_result, ex=3600)
                     source = "generated"
 
-                await redis.set(status_key, "completed", ex=3600)
+                await redis.set(status_key, status, ex=3600)
 
                 event = {
                     "task_id": task_id,
-                    "status": "completed",
-                    "result": result,
+                    "status": status,
+                    "moderation_result": moderation_result,
                     "source": source,
                 }
-                await app.state.producer.send_and_wait(settings.task_completed_topic, encode_event(event))
+                await app.state.producer.send_and_wait(
+                    settings.task_completed_topic,
+                    encode_event(event),
+                )
         except asyncio.CancelledError:
             try:
                 await consumer.stop()

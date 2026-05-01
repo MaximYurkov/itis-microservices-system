@@ -12,7 +12,7 @@ from app.schemas import TaskCreate, TaskRead
 from shared.events import encode_event
 from shared.kafka_utils import build_producer
 
-app = FastAPI(title="Task Service", version="1.0.0")
+app = FastAPI(title="Content Service", version="1.0.0")
 
 
 @app.on_event("startup")
@@ -42,14 +42,14 @@ def health() -> dict[str, str]:
 
 @app.post("/tasks", response_model=TaskRead, status_code=status.HTTP_201_CREATED)
 async def create_task(payload: TaskCreate, request: Request, db: Session = Depends(get_db)) -> Task:
-    task = Task(prompt=payload.prompt, status="queued")
+    task = Task(content=payload.content, status="pending")
     db.add(task)
     db.commit()
     db.refresh(task)
 
     event = {
         "task_id": task.id,
-        "prompt": task.prompt,
+        "content": task.content,
         "status": task.status,
     }
     producer: AIOKafkaProducer = request.app.state.producer

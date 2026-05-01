@@ -24,9 +24,10 @@ async def consume_completed_tasks(app) -> None:
 
                 doc = {
                     "task_id": task_id,
-                    "status": payload.get("status", "completed"),
+                    "status": payload.get("status", "approved"),
                     "source": payload.get("source", "generated"),
-                    "message": f"Task {task_id} completed",
+                    "message": f"Moderation finished for content {task_id}",
+                    "moderation_result": payload.get("moderation_result"),
                     "created_at": datetime.now(timezone.utc),
                 }
                 await app.state.collection.insert_one(doc)

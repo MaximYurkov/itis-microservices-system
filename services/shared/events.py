@@ -1,8 +1,8 @@
 import json
 from typing import Any
 
-TASK_CREATED_TOPIC_DEFAULT = "task.created"
-TASK_COMPLETED_TOPIC_DEFAULT = "task.completed"
+TASK_CREATED_TOPIC_DEFAULT = "content.created"
+TASK_COMPLETED_TOPIC_DEFAULT = "content.moderated"
 
 
 def encode_event(payload: dict[str, Any]) -> bytes:
