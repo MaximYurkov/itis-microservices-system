@@ -19,7 +19,7 @@ containerPort: 8002
 env:
   SERVICE_NAME: agent-service
   APP_PORT: "8002"
-  KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+  KAFKA_BOOTSTRAP_SERVERS: "my-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092"
   TASK_CREATED_TOPIC: "content.created"
   TASK_COMPLETED_TOPIC: "content.moderated"
   REDIS_URL: "redis://redis:6379/0"
