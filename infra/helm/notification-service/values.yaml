@@ -1,0 +1,26 @@
+nameOverride: notification-service
+namespace: content-moderation
+
+image:
+  repository: notification-service
+  tag: latest
+  pullPolicy: IfNotPresent
+
+serviceAccount:
+  name: notification-service-sa
+
+service:
+  type: ClusterIP
+  port: 8003
+  targetPort: 8003
+
+containerPort: 8003
+
+env:
+  SERVICE_NAME: notification-service
+  APP_PORT: "8003"
+  KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+  TASK_COMPLETED_TOPIC: "content.moderated"
+  MONGO_URL: "mongodb://mongo:27017"
+  MONGO_DB: "notifications_db"
+  MONGO_COLLECTION: "notifications"

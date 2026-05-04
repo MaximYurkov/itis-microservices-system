@@ -1,0 +1,25 @@
+nameOverride: task-service
+namespace: content-moderation
+
+image:
+  repository: task-service
+  tag: latest
+  pullPolicy: IfNotPresent
+
+serviceAccount:
+  name: task-service-sa
+
+service:
+  type: ClusterIP
+  port: 8001
+  targetPort: 8001
+
+containerPort: 8001
+
+env:
+  SERVICE_NAME: task-service
+  APP_PORT: "8001"
+  DATABASE_URL: "postgresql+psycopg://tasks_user:tasks_password@postgres:5432/tasks_db"
+  KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+  TASK_CREATED_TOPIC: "content.created"
+  TASK_COMPLETED_TOPIC: "content.moderated"

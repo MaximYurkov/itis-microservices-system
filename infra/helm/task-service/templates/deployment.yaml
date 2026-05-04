@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.nameOverride }}
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.nameOverride }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.nameOverride }}
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      containers:
+        - name: {{ .Values.nameOverride }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.containerPort }}
+          env:
+            - name: SERVICE_NAME
+              value: {{ .Values.env.SERVICE_NAME | quote }}
+            - name: APP_PORT
+              value: {{ .Values.env.APP_PORT | quote }}
+            - name: DATABASE_URL
+              value: {{ .Values.env.DATABASE_URL | quote }}
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: {{ .Values.env.KAFKA_BOOTSTRAP_SERVERS | quote }}
+            - name: TASK_CREATED_TOPIC
+              value: {{ .Values.env.TASK_CREATED_TOPIC | quote }}
+            - name: TASK_COMPLETED_TOPIC
+              value: {{ .Values.env.TASK_COMPLETED_TOPIC | quote }}
