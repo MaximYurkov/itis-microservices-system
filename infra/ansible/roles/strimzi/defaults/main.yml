@@ -1,0 +1,5 @@
+kafka_namespace: kafka
+strimzi_install_url: "https://strimzi.io/install/latest?namespace=kafka"
+kafka_single_node_url: "https://strimzi.io/examples/latest/kafka/kafka-single-node.yaml"
+kafka_cluster_name: my-cluster
+kafka_wait_timeout: 300s

@@ -1,0 +1,44 @@
+- name: Apply Kafka namespace
+  ansible.builtin.command:
+    cmd: kubectl apply -f {{ role_path }}/files/namespace.yaml
+  register: namespace_apply
+
+- name: Show namespace apply result
+  ansible.builtin.debug:
+    var: namespace_apply.stdout_lines
+
+- name: Install Strimzi operator
+  ansible.builtin.command:
+    cmd: kubectl apply -f {{ strimzi_install_url }} -n {{ kafka_namespace }}
+  register: operator_apply
+
+- name: Show operator apply result
+  ansible.builtin.debug:
+    var: operator_apply.stdout_lines
+
+- name: Wait for Strimzi operator rollout
+  ansible.builtin.command:
+    cmd: kubectl rollout status deployment/strimzi-cluster-operator -n {{ kafka_namespace }} --timeout={{ kafka_wait_timeout }}
+  register: operator_rollout
+
+- name: Show operator rollout result
+  ansible.builtin.debug:
+    var: operator_rollout.stdout_lines
+
+- name: Apply single-node Kafka cluster
+  ansible.builtin.command:
+    cmd: kubectl apply -f {{ kafka_single_node_url }} -n {{ kafka_namespace }}
+  register: kafka_apply
+
+- name: Show Kafka apply result
+  ansible.builtin.debug:
+    var: kafka_apply.stdout_lines
+
+- name: Wait for Kafka cluster to become Ready
+  ansible.builtin.command:
+    cmd: kubectl wait kafka/{{ kafka_cluster_name }} --for=condition=Ready --timeout={{ kafka_wait_timeout }} -n {{ kafka_namespace }}
+  register: kafka_wait
+
+- name: Show Kafka wait result
+  ansible.builtin.debug:
+    var: kafka_wait.stdout_lines
