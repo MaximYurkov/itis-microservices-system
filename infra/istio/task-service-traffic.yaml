@@ -1,0 +1,38 @@
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: task-service-dr
+  namespace: content-moderation
+spec:
+  host: task-service.content-moderation.svc.cluster.local
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 10
+      http:
+        http1MaxPendingRequests: 10
+        maxRequestsPerConnection: 2
+    outlierDetection:
+      consecutive5xxErrors: 3
+      interval: 5s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 100
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: task-service-vs
+  namespace: content-moderation
+spec:
+  hosts:
+    - task-service.content-moderation.svc.cluster.local
+  gateways:
+    - mesh
+  http:
+    - retries:
+        attempts: 3
+        perTryTimeout: 2s
+        retryOn: gateway-error,connect-failure,refused-stream,5xx
+      route:
+        - destination:
+            host: task-service.content-moderation.svc.cluster.local
