@@ -3,7 +3,7 @@ namespace: content-moderation
 
 image:
   repository: notification-service
-  tag: latest
+  tag: "8cc25212edfe7bfdcd95f074a435d0b402dafa9c"
   pullPolicy: IfNotPresent
 
 serviceAccount:
@@ -24,3 +24,4 @@ env:
   MONGO_URL: "mongodb://mongo:27017"
   MONGO_DB: "notifications_db"
   MONGO_COLLECTION: "notifications"
+

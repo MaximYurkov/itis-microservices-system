@@ -3,7 +3,7 @@ namespace: content-moderation
 
 image:
   repository: task-service
-  tag: latest
+  tag: "8cc25212edfe7bfdcd95f074a435d0b402dafa9c"
   pullPolicy: IfNotPresent
 
 serviceAccount:
@@ -23,3 +23,4 @@ env:
   KAFKA_BOOTSTRAP_SERVERS: "my-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092"
   TASK_CREATED_TOPIC: "content.created"
   TASK_COMPLETED_TOPIC: "content.moderated"
+
