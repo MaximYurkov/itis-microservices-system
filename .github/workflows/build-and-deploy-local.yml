@@ -22,33 +22,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check local registry
-        shell: powershell
-        run: |
-          curl.exe http://localhost:5000/v2/_catalog
-
       - name: Set image tag
         shell: powershell
         run: |
           "IMAGE_TAG=$env:GITHUB_SHA" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-      - name: Build and push task-service
+      - name: Build images directly inside Minikube Docker daemon
         shell: powershell
         run: |
-          docker build -t localhost:5000/task-service:$env:IMAGE_TAG -f services/task_service/Dockerfile .
-          docker push localhost:5000/task-service:$env:IMAGE_TAG
+          minikube -p minikube docker-env --shell powershell | Invoke-Expression
 
-      - name: Build and push agent-service
-        shell: powershell
-        run: |
-          docker build -t localhost:5000/agent-service:$env:IMAGE_TAG -f services/agent_service/Dockerfile .
-          docker push localhost:5000/agent-service:$env:IMAGE_TAG
-
-      - name: Build and push notification-service
-        shell: powershell
-        run: |
-          docker build -t localhost:5000/notification-service:$env:IMAGE_TAG -f services/notification_service/Dockerfile .
-          docker push localhost:5000/notification-service:$env:IMAGE_TAG
+          docker build -t task-service:$env:IMAGE_TAG -f services/task_service/Dockerfile .
+          docker build -t agent-service:$env:IMAGE_TAG -f services/agent_service/Dockerfile .
+          docker build -t notification-service:$env:IMAGE_TAG -f services/notification_service/Dockerfile .
 
       - name: Update Helm image tags
         shell: powershell
