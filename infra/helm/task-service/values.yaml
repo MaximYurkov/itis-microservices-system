@@ -2,9 +2,9 @@ nameOverride: task-service
 namespace: content-moderation
 
 image:
-  repository: task-service
+  repository: localhost:5000/task-service
   tag: latest
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 serviceAccount:
   name: task-service-sa

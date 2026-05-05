@@ -2,9 +2,9 @@ nameOverride: agent-service
 namespace: content-moderation
 
 image:
-  repository: agent-service
+  repository: localhost:5000/agent-service
   tag: latest
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 serviceAccount:
   name: agent-service-sa

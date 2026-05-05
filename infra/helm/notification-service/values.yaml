@@ -2,9 +2,9 @@ nameOverride: notification-service
 namespace: content-moderation
 
 image:
-  repository: notification-service
+  repository: localhost:5000/notification-service
   tag: latest
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 serviceAccount:
   name: notification-service-sa
